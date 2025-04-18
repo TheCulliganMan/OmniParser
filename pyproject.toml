@@ -1,5 +1,5 @@
 [project]
-name = "omniparser"
+name = "omnitool"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -39,3 +39,82 @@ dependencies = [
     "uiautomation>=2.0.25",
     "ultralytics==8.3.70",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 88
+respect-gitignore = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN001",
+    "ANN002",
+    "ANN003",
+    "ANN101",
+    "ANN201",
+    "ANN202",
+    "D103",
+    "D104",
+    "PGH003",
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "PLR2004",
+    "PLW0603",
+    "S101",
+    "S105",
+    "S106",
+    "TRY003",
+    "TRY201",
+    "TRY301",
+]
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+typing-modules = [
+    "typing",
+    "types",
+    "typing_extensions",
+    "mypy",
+    "mypy_extensions",
+]
+
+[tool.ruff.lint.isort]
+order-by-type = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "ANN001",
+    "ANN002",
+    "ANN003",
+    "ANN101",
+    "ANN201",
+    "ANN202",
+    "D103",
+    "D104",
+    "PGH003",
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "PLR2004",
+    "PLW0603",
+    "S101",
+    "S105",
+    "S106",
+    "TRY003",
+    "TRY201",
+    "TRY301",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
