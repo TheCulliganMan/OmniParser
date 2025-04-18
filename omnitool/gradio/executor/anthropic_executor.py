@@ -14,7 +14,7 @@ from anthropic.types.beta import (
     BetaToolResultBlockParam,
     BetaToolUseBlock,
 )
-from tools import ComputerTool, ToolCollection, ToolResult
+from omnitool.gradio.tools import ComputerTool, ToolCollection, ToolResult
 
 
 class AnthropicExecutor:

@@ -13,7 +13,7 @@ from anthropic.types.beta import (
     BetaMessage,
     BetaMessageParam,
 )
-from tools import ComputerTool, ToolCollection
+from omnitool.gradio.tools import ComputerTool, ToolCollection
 
 BETA_FLAG = "computer-use-2024-10-22"
 

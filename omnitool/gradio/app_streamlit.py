@@ -19,7 +19,7 @@ from anthropic.types.tool_use_block import ToolUseBlock
 from loop import (
     sampling_loop_sync,
 )
-from tools import ToolResult
+from omnitool.gradio.tools import ToolResult
 
 # Constants and configurations
 CONFIG_DIR = Path("~/.anthropic").expanduser()

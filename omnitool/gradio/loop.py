@@ -12,7 +12,7 @@ from anthropic.types import (
 )
 from anthropic.types.beta import BetaContentBlock, BetaMessage, BetaMessageParam
 from executor.anthropic_executor import AnthropicExecutor
-from tools import ToolResult
+from omnitool.gradio.tools import ToolResult
 
 from omnitool.gradio.agent.llm_utils.omniparserclient import OmniParserClient
 
