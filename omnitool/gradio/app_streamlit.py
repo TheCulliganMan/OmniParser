@@ -19,7 +19,12 @@ from anthropic.types.tool_use_block import ToolUseBlock
 from loop import (
     sampling_loop_sync,
 )
+
 from omnitool.gradio.tools import ToolResult
+from omnitool.settings import (
+    MODEL_CHOICES,
+    ModelChoice,
+)
 
 # Constants and configurations
 CONFIG_DIR = Path("~/.anthropic").expanduser()
@@ -270,22 +275,38 @@ def main():
         # Model selection
         model = st.selectbox(
             "Model",
-            [
-                "omniparser + gpt-4o",
-                "omniparser + o1",
-                "omniparser + o3-mini",
-                "omniparser + R1",
-                "omniparser + qwen2.5vl",
-                "claude-3-5-sonnet-20241022",
-                "omniparser + gpt-4o-orchestrated",
-                "omniparser + o1-orchestrated",
-                "omniparser + o3-mini-orchestrated",
-                "omniparser + R1-orchestrated",
-                "omniparser + qwen2.5vl-orchestrated",
-            ],
-            index=6,
+            MODEL_CHOICES,
+            index=MODEL_CHOICES.index(ModelChoice.OMNIPARSER_GPT4O_ORCHESTRATED.value),
         )
         st.session_state.model = model
+
+        # Provider selection logic
+        if model == ModelChoice.CLAUDE_SONNET.value:
+            provider_choices = [p for p in ["anthropic", "bedrock", "vertex"]]
+        elif model in [
+            ModelChoice.OMNIPARSER_GPT4O.value,
+            ModelChoice.OMNIPARSER_O1.value,
+            ModelChoice.OMNIPARSER_O3MINI.value,
+            ModelChoice.OMNIPARSER_GPT4O_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_O1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_O3MINI_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_GPT4O_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_O1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_O3MINI_ORCHESTRATED.value,
+        ]:
+            provider_choices = ["azure-openai", "openai"]
+        elif model == ModelChoice.OMNIPARSER_R1.value:
+            provider_choices = ["groq"]
+        elif model == ModelChoice.OMNIPARSER_QWEN25VL.value:
+            provider_choices = ["dashscope"]
+        else:
+            provider_choices = ["openai"]
+        provider = st.selectbox(
+            "Provider",
+            provider_choices,
+            index=0,
+        )
+        st.session_state.provider = provider
 
         # API settings
         api_key = st.text_input(

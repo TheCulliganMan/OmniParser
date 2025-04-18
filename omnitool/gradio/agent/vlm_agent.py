@@ -19,6 +19,7 @@ from PIL import Image, ImageDraw
 from omnitool.gradio.agent.llm_utils.groqclient import run_groq_interleaved
 from omnitool.gradio.agent.llm_utils.oaiclient import run_oai_interleaved
 from omnitool.gradio.agent.llm_utils.utils import is_image_path
+from omnitool.settings import MODEL_DISPLAY_TO_INTERNAL, ModelChoice
 
 OUTPUT_DIR = "./tmp/outputs"
 
@@ -45,17 +46,10 @@ class VLMAgent:
         only_n_most_recent_images: int | None = None,
         print_usage: bool = True,
     ):
-        if model == "omniparser + gpt-4o":
-            self.model = "gpt-4o-2024-11-20"
-        elif model == "omniparser + R1":
-            self.model = "deepseek-r1-distill-llama-70b"
-        elif model == "omniparser + qwen2.5vl":
-            self.model = "qwen2.5-vl-72b-instruct"
-        elif model == "omniparser + o1":
-            self.model = "o1"
-        elif model == "omniparser + o3-mini":
-            self.model = "o3-mini"
-        else:
+        # Use ModelChoice and mapping for model selection, including Azure models
+        try:
+            self.model = MODEL_DISPLAY_TO_INTERNAL[ModelChoice(model)]
+        except (KeyError, ValueError):
             raise ValueError(f"Model {model} not supported")
 
         self.provider = provider

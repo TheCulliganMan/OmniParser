@@ -21,9 +21,10 @@ from PIL import Image, ImageDraw
 from omnitool.gradio.agent.llm_utils.groqclient import run_groq_interleaved
 from omnitool.gradio.agent.llm_utils.oaiclient import run_oai_interleaved
 from omnitool.gradio.agent.llm_utils.utils import is_image_path
+from omnitool.settings import MODEL_DISPLAY_TO_INTERNAL, ModelChoice
 
 OUTPUT_DIR = "./tmp/outputs"
-ORCHESTRATOR_LEDGER_PROMPT = """
+ORCHESTRATEDESTRATOR_LEDGER_PROMPT = """
 Recall we are working on the following request:
 
 {task}
@@ -81,28 +82,11 @@ class VLMOrchestratedAgent:
         print_usage: bool = True,
         save_folder: str = None,
     ):
-        if (
-            model == "omniparser + gpt-4o"
-            or model == "omniparser + gpt-4o-orchestrated"
-        ):
-            self.model = "gpt-4o-2024-11-20"
-        elif model == "omniparser + R1" or model == "omniparser + R1-orchestrated":
-            self.model = "deepseek-r1-distill-llama-70b"
-        elif (
-            model == "omniparser + qwen2.5vl"
-            or model == "omniparser + qwen2.5vl-orchestrated"
-        ):
-            self.model = "qwen2.5-vl-72b-instruct"
-        elif model == "omniparser + o1" or model == "omniparser + o1-orchestrated":
-            self.model = "o1"
-        elif (
-            model == "omniparser + o3-mini"
-            or model == "omniparser + o3-mini-orchestrated"
-        ):
-            self.model = "o3-mini"
-        else:
+        # Use ModelChoice and mapping for model selection, including Azure models
+        try:
+            self.model = MODEL_DISPLAY_TO_INTERNAL[ModelChoice(model)]
+        except (KeyError, ValueError):
             raise ValueError(f"Model {model} not supported")
-
         self.provider = provider
         self.api_key = api_key
         self.api_response_callback = api_response_callback
@@ -483,7 +467,9 @@ IMPORTANT NOTES:
         # tobe implemented
         # update the ledger with the current task and plan
         # return the updated ledger
-        update_ledger_prompt = ORCHESTRATOR_LEDGER_PROMPT.format(task=self._task)
+        update_ledger_prompt = ORCHESTRATEDESTRATOR_LEDGER_PROMPT.format(
+            task=self._task
+        )
         input_message = copy.deepcopy(messages)
         input_message.append({"role": "user", "content": update_ledger_prompt})
         vlm_response, token_usage = run_oai_interleaved(

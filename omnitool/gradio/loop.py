@@ -12,9 +12,12 @@ from anthropic.types import (
 )
 from anthropic.types.beta import BetaContentBlock, BetaMessage, BetaMessageParam
 from executor.anthropic_executor import AnthropicExecutor
-from omnitool.gradio.tools import ToolResult
 
 from omnitool.gradio.agent.llm_utils.omniparserclient import OmniParserClient
+from omnitool.gradio.tools import ToolResult
+from omnitool.settings import (
+    ModelChoice,
+)
 
 BETA_FLAG = "computer-use-2024-10-22"
 
@@ -24,6 +27,7 @@ class APIProvider(StrEnum):
     BEDROCK = "bedrock"
     VERTEX = "vertex"
     OPENAI = "openai"
+    AZURE_OPENAI = "azure-openai"
 
 
 PROVIDER_TO_DEFAULT_MODEL_NAME: dict[APIProvider, str] = {
@@ -31,6 +35,7 @@ PROVIDER_TO_DEFAULT_MODEL_NAME: dict[APIProvider, str] = {
     APIProvider.BEDROCK: "anthropic.claude-3-5-sonnet-20241022-v2:0",
     APIProvider.VERTEX: "claude-3-5-sonnet-v2@20241022",
     APIProvider.OPENAI: "gpt-4o",
+    APIProvider.AZURE_OPENAI: "gpt-4o",
 }
 
 
@@ -51,7 +56,7 @@ def sampling_loop_sync(
     """Synchronous agentic sampling loop for the assistant/tool interaction of computer use."""
     print("in sampling_loop_sync, model:", model)
     omniparser_client = OmniParserClient(url=f"http://{omniparser_url}/parse/")
-    if model == "claude-3-5-sonnet-20241022":
+    if model == ModelChoice.CLAUDE_SONNET.value:
         # Register Actor and Executor
         actor = AnthropicActor(
             model=model,
@@ -63,12 +68,18 @@ def sampling_loop_sync(
         )
     elif model in set(
         [
-            "omniparser + gpt-4o",
-            "omniparser + o1",
-            "omniparser + o3-mini",
-            "omniparser + R1",
-            "omniparser + qwen2.5vl",
-        ],
+            ModelChoice.OMNIPARSER_GPT4O.value,
+            ModelChoice.OMNIPARSER_O1.value,
+            ModelChoice.OMNIPARSER_O3MINI.value,
+            ModelChoice.OMNIPARSER_R1.value,
+            ModelChoice.OMNIPARSER_QWEN25VL.value,
+            ModelChoice.OMNIPARSER_GPT4O_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_O1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_O3MINI_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_GPT4O_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_O1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_O3MINI_ORCHESTRATED.value,
+        ]
     ):
         actor = VLMAgent(
             model=model,
@@ -81,12 +92,15 @@ def sampling_loop_sync(
         )
     elif model in set(
         [
-            "omniparser + gpt-4o-orchestrated",
-            "omniparser + o1-orchestrated",
-            "omniparser + o3-mini-orchestrated",
-            "omniparser + R1-orchestrated",
-            "omniparser + qwen2.5vl-orchestrated",
-        ],
+            ModelChoice.OMNIPARSER_GPT4O_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_O1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_O3MINI_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_R1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_QWEN25VL_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_GPT4O_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_O1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_O3MINI_ORCHESTRATED.value,
+        ]
     ):
         actor = VLMOrchestratedAgent(
             model=model,
@@ -110,7 +124,7 @@ def sampling_loop_sync(
 
     print(f"Start the message loop. User messages: {messages}")
 
-    if model == "claude-3-5-sonnet-20241022":  # Anthropic loop
+    if model == ModelChoice.CLAUDE_SONNET.value:  # Anthropic loop
         while True:
             parsed_screen = omniparser_client()  # parsed_screen: {"som_image_base64": dino_labled_img, "parsed_content_list": parsed_content_list, "screen_info"}
             screen_info_block = TextBlock(
@@ -132,17 +146,18 @@ def sampling_loop_sync(
 
     elif model in set(
         [
-            "omniparser + gpt-4o",
-            "omniparser + o1",
-            "omniparser + o3-mini",
-            "omniparser + R1",
-            "omniparser + qwen2.5vl",
-            "omniparser + gpt-4o-orchestrated",
-            "omniparser + o1-orchestrated",
-            "omniparser + o3-mini-orchestrated",
-            "omniparser + R1-orchestrated",
-            "omniparser + qwen2.5vl-orchestrated",
-        ],
+            ModelChoice.OMNIPARSER_GPT4O.value,
+            ModelChoice.OMNIPARSER_O1.value,
+            ModelChoice.OMNIPARSER_O3MINI.value,
+            ModelChoice.OMNIPARSER_R1.value,
+            ModelChoice.OMNIPARSER_QWEN25VL.value,
+            ModelChoice.OMNIPARSER_GPT4O_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_O1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_O3MINI_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_GPT4O_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_O1_ORCHESTRATED.value,
+            ModelChoice.OMNIPARSER_AZURE_O3MINI_ORCHESTRATED.value,
+        ]
     ):
         while True:
             parsed_screen = omniparser_client()

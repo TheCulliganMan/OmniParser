@@ -20,7 +20,12 @@ from loop import (
     sampling_loop_sync,
 )
 from requests.exceptions import RequestException
+
 from omnitool.gradio.tools import ToolResult
+from omnitool.settings import (
+    MODEL_CHOICES,
+    ModelChoice,
+)
 
 CONFIG_DIR = Path("~/.anthropic").expanduser()
 API_KEY_FILE = CONFIG_DIR / "api_key"
@@ -340,20 +345,8 @@ with gr.Blocks(theme=gr.themes.Default()) as demo:
             with gr.Column():
                 model = gr.Dropdown(
                     label="Model",
-                    choices=[
-                        "omniparser + gpt-4o",
-                        "omniparser + o1",
-                        "omniparser + o3-mini",
-                        "omniparser + R1",
-                        "omniparser + qwen2.5vl",
-                        "claude-3-5-sonnet-20241022",
-                        "omniparser + gpt-4o-orchestrated",
-                        "omniparser + o1-orchestrated",
-                        "omniparser + o3-mini-orchestrated",
-                        "omniparser + R1-orchestrated",
-                        "omniparser + qwen2.5vl-orchestrated",
-                    ],
-                    value="omniparser + gpt-4o",
+                    choices=MODEL_CHOICES,
+                    value=ModelChoice.OMNIPARSER_GPT4O.value,
                     interactive=True,
                 )
             with gr.Column():
@@ -369,8 +362,13 @@ with gr.Blocks(theme=gr.themes.Default()) as demo:
             with gr.Column(1):
                 provider = gr.Dropdown(
                     label="API Provider",
-                    choices=[option.value for option in APIProvider],
-                    value="openai",
+                    choices=["azure-openai"]
+                    + [
+                        option.value
+                        for option in APIProvider
+                        if option.value != "azure-openai"
+                    ],
+                    value="azure-openai",
                     interactive=False,
                 )
             with gr.Column(2):
@@ -407,25 +405,27 @@ with gr.Blocks(theme=gr.themes.Default()) as demo:
     def update_model(model_selection, state):
         state["model"] = model_selection
         print(f"Model updated to: {state['model']}")
-
-        if model_selection == "claude-3-5-sonnet-20241022":
+        if model_selection == ModelChoice.CLAUDE_SONNET.value:
             provider_choices = [
                 option.value for option in APIProvider if option.value != "openai"
             ]
         elif model_selection in set(
             [
-                "omniparser + gpt-4o",
-                "omniparser + o1",
-                "omniparser + o3-mini",
-                "omniparser + gpt-4o-orchestrated",
-                "omniparser + o1-orchestrated",
-                "omniparser + o3-mini-orchestrated",
-            ],
+                ModelChoice.OMNIPARSER_GPT4O.value,
+                ModelChoice.OMNIPARSER_O1.value,
+                ModelChoice.OMNIPARSER_O3MINI.value,
+                ModelChoice.OMNIPARSER_GPT4O_ORCHESTRATED.value,
+                ModelChoice.OMNIPARSER_O1_ORCHESTRATED.value,
+                ModelChoice.OMNIPARSER_O3MINI_ORCHESTRATED.value,
+                ModelChoice.OMNIPARSER_AZURE_GPT4O_ORCHESTRATED.value,
+                ModelChoice.OMNIPARSER_AZURE_O1_ORCHESTRATED.value,
+                ModelChoice.OMNIPARSER_AZURE_O3MINI_ORCHESTRATED.value,
+            ]
         ):
-            provider_choices = ["openai"]
-        elif model_selection == "omniparser + R1":
+            provider_choices = ["azure-openai", "openai"]
+        elif model_selection == ModelChoice.OMNIPARSER_R1.value:
             provider_choices = ["groq"]
-        elif model_selection == "omniparser + qwen2.5vl":
+        elif model_selection == ModelChoice.OMNIPARSER_QWEN25VL.value:
             provider_choices = ["dashscope"]
         else:
             provider_choices = [option.value for option in APIProvider]

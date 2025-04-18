@@ -61,7 +61,7 @@ We put together a few simple examples in the demo.ipynb.
 ## Gradio Demo
 To run gradio demo, simply run:
 ```python
-python gradio_demo.py
+uv run omnitool/gradio/gradio_demo.py 
 ```
 
 ## Model Weights License
